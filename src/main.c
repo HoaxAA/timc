@@ -6,21 +6,14 @@
 #include <string.h>
 
 void initialize(FILE*);
-int isInitialized(FILE*);
+ssize_t isInitialized(FILE*);
 
 int
 main()
 {
-    FILE* initializedTime = fopen("time", "w+");
+    FILE* initializedTime = fopen("time", "a+");
 
-    initialize(initializedTime);
-
-    if (!isInitialized(initializedTime)) {
-        printf("Salam");
-    }
-    else {
-        printf("Khodafes");
-    }
+    printf("%zu\n",isInitialized(initializedTime));
 
     fclose(initializedTime);
 }
@@ -38,12 +31,13 @@ void initialize(FILE* initializedTime)
     printf("%s", buffer);
 }
 
-int isInitialized(FILE* filePtr)
+ssize_t isInitialized(FILE* filePtr)
 {
     char* buffer = malloc(sizeof(char) * 256);
-    size_t leng = 0;
+    size_t leng = 255;
 
     ssize_t status = getline(&buffer, &leng, filePtr);
     printf("buffer: %s, count: %zu\n", buffer, status);
+    free(buffer);
     return status;
 }
