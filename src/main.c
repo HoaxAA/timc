@@ -12,11 +12,18 @@ long int isInitialized(FILE*);
 int
 main()
 {
-    FILE* filePtr = fopen("time", "r");
+    FILE* filePtr = fopen("time", "r+");
 
-    printf("%d\n", fseek(filePtr, 0, SEEK_END));
-    printf("%lu\n", ftell(filePtr));
-
+    // with the help of three functions we wrote, checks whether the 
+    // file is empty or not
+    // if yes -> read the first initialized time from the file
+    // if no -> writes the current time of the calander system to "time" file
+    if (isInitialized(filePtr)) {
+        initializedTime(filePtr);
+    }
+    else {
+        initialize(filePtr);
+    }
 
     fclose(filePtr);
 }
@@ -40,7 +47,6 @@ ssize_t initializedTime(FILE* filePtr)
     size_t leng = 255;
 
     ssize_t status = getline(&buffer, &leng, filePtr);
-    printf("buffer: %s, count: %zu\n", buffer, status);
     free(buffer);
     return status;
 }
