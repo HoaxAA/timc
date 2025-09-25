@@ -33,9 +33,8 @@ void firstInitialize(FILE* filePtr)
     // is a string (char pointer) we need to convert it some how
     // with the help of sprintf we can wrtie number into our buffer
     sprintf(buffer, "%lu", timer);
-    // Write (re-write if already exists) to the text file we opened at first of the file
+    // Write to the text file we opened at first of the file
     fwrite(buffer, sizeof(char), strlen(buffer), filePtr);
-    printf("%s", buffer);
 }
 
 long int initializedTime(FILE* filePtr)
