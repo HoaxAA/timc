@@ -5,30 +5,22 @@
 #include <malloc.h>
 #include <string.h>
 
-void initialize(FILE*);
+void firstInitialize(FILE*);
 ssize_t initializedTime(FILE*);
 long int isInitialized(FILE*);
+int initialize();
 
 int
 main()
 {
-    FILE* filePtr = fopen("time", "r+");
-
-    // with the help of three functions we wrote, checks whether the 
-    // file is empty or not
-    // if yes -> read the first initialized time from the file
-    // if no -> writes the current time of the calander system to "time" file
-    if (isInitialized(filePtr)) {
-        initializedTime(filePtr);
-    }
-    else {
-        initialize(filePtr);
+    if (initialize() == -1) {
+        printf("Failed to initialize\n");
+        return 0;
     }
 
-    fclose(filePtr);
 }
 
-void initialize(FILE* filePtr)
+void firstInitialize(FILE* filePtr)
 {
     // Set the timer variable value to the current time of calander system (since epoch)
     // with the help of the time() function
@@ -44,6 +36,10 @@ void initialize(FILE* filePtr)
 ssize_t initializedTime(FILE* filePtr)
 {
     char* buffer = malloc(sizeof(char) * 256);
+    if (buffer == NULL) {
+        perror("Failed to allocate memory\n");
+        return 1;
+    }
     size_t leng = 255;
 
     ssize_t status = getline(&buffer, &leng, filePtr);
@@ -63,4 +59,27 @@ long int isInitialized(FILE* filePtr)
     fseek(filePtr, 0, SEEK_END);
     long int position = ftell(filePtr);
     return position;
+}
+
+int initialize()
+{
+    FILE* filePtr = fopen("time", "a+");
+    if (filePtr == NULL) {
+        perror("Failed to open the file\n");
+        return -1;
+    }
+
+    // with the help of three functions we wrote, checks whether the 
+    // file is empty or not
+    // if yes -> read the first initialized time from the file
+    // if no -> writes the current time of the calander system to "time" file
+    if (isInitialized(filePtr)) {
+        initializedTime(filePtr);
+    }
+    else {
+        firstInitialize(filePtr);
+    }
+
+    fclose(filePtr);
+    return 1;
 }
