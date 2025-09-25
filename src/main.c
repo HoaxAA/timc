@@ -2,11 +2,10 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <time.h>
-#include <malloc.h>
 #include <string.h>
 
 void firstInitialize(FILE*);
-ssize_t initializedTime(FILE*);
+long int initializedTime(FILE*);
 long int isInitialized(FILE*);
 int initialize();
 
@@ -17,7 +16,6 @@ main()
         printf("Failed to initialize\n");
         return 0;
     }
-
 }
 
 void firstInitialize(FILE* filePtr)
@@ -26,25 +24,44 @@ void firstInitialize(FILE* filePtr)
     // with the help of the time() function
     time_t timer = time(NULL);
 
-    // Save the current time calculated with timer value with the help of ctime function
-    char* buffer = ctime(&timer);
+    // Save the current time to buffer 
+    char* buffer = malloc(sizeof(char) * 256);
+    if (buffer == NULL) { 
+        perror("Failed to allocate memory\n");
+    }
+    // Since time returns a long int and our buffer data type
+    // is a string (char pointer) we need to convert it some how
+    // with the help of sprintf we can wrtie number into our buffer
+    sprintf(buffer, "%lu", timer);
     // Write (re-write if already exists) to the text file we opened at first of the file
     fwrite(buffer, sizeof(char), strlen(buffer), filePtr);
     printf("%s", buffer);
 }
 
-ssize_t initializedTime(FILE* filePtr)
+long int initializedTime(FILE* filePtr)
 {
+    // place the file pointer at the first of the file
+    // beacuse "a+" mode set the pointer at the end of the file
+    // if we set the origin to SEEK_SET and offset to ZERO, file pointer
+    // will be placed at the start of the file
+    fseek(filePtr, 0, SEEK_SET);
+
     char* buffer = malloc(sizeof(char) * 256);
     if (buffer == NULL) {
         perror("Failed to allocate memory\n");
         return 1;
     }
-    size_t leng = 255;
+    size_t len = 0;
 
-    ssize_t status = getline(&buffer, &leng, filePtr);
+    ssize_t status = getline(&buffer, &len, filePtr);
+    if (status == -1) {
+        perror("Failed to read the line\n");
+        return -1;
+    }
+    // convert buffer (string) into long int (same data type as time() function return value)
+    long int time = strtol(buffer, NULL, 10);
     free(buffer);
-    return status;
+    return time;
 }
 
 long int isInitialized(FILE* filePtr)
