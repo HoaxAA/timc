@@ -4,21 +4,22 @@
 #include <time.h>
 #include <string.h>
 
-void firstInitialize(FILE*);
+long int firstInitialize(FILE*);
 long int initializedTime(FILE*);
 long int isInitialized(FILE*);
-int initialize();
+long int initialize();
 
 int
 main()
 {
-    if (initialize() == -1) {
+    long int firstTime = initialize();
+    if (firstTime == -1) {
         printf("Failed to initialize\n");
         return 0;
     }
 }
 
-void firstInitialize(FILE* filePtr)
+long int firstInitialize(FILE* filePtr)
 {
     // Set the timer variable value to the current time of calander system (since epoch)
     // with the help of the time() function
@@ -32,9 +33,11 @@ void firstInitialize(FILE* filePtr)
     // Since time returns a long int and our buffer data type
     // is a string (char pointer) we need to convert it some how
     // with the help of sprintf we can wrtie number into our buffer
-    sprintf(buffer, "%lu", timer);
+    sprintf(buffer, "%lu:", timer);
     // Write to the text file we opened at first of the file
     fwrite(buffer, sizeof(char), strlen(buffer), filePtr);
+
+    return timer;
 }
 
 long int initializedTime(FILE* filePtr)
@@ -77,7 +80,7 @@ long int isInitialized(FILE* filePtr)
     return position;
 }
 
-int initialize()
+long int initialize()
 {
     FILE* filePtr = fopen("time", "a+");
     if (filePtr == NULL) {
@@ -89,13 +92,14 @@ int initialize()
     // file is empty or not
     // if yes -> read the first initialized time from the file
     // if no -> writes the current time of the calander system to "time" file
+    long int time;
     if (isInitialized(filePtr)) {
-        initializedTime(filePtr);
+        time = initializedTime(filePtr);
     }
     else {
         firstInitialize(filePtr);
     }
 
     fclose(filePtr);
-    return 1;
+    return time;
 }
