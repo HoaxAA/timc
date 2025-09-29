@@ -37,6 +37,7 @@
 *.hex
 main
 time
+time.bak
 
 # Debug files
 *.dSYM/
