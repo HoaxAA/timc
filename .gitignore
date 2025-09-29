@@ -38,6 +38,7 @@
 main
 time
 time.bak
+toDo
 
 # Debug files
 *.dSYM/
