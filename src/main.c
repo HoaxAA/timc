@@ -8,15 +8,12 @@ long int firstInitialize(FILE*);
 long int initializedTime(FILE*);
 long int isInitialized(FILE*);
 long int initialize();
+double counter();
+
 
 int
 main()
 {
-    long int firstTime = initialize();
-    if (firstTime == -1) {
-        printf("Failed to initialize\n");
-        return 0;
-    }
 }
 
 long int firstInitialize(FILE* filePtr)
@@ -30,8 +27,7 @@ long int firstInitialize(FILE* filePtr)
     if (buffer == NULL) { 
         perror("Failed to allocate memory\n");
     }
-    // Since time returns a long int and our buffer data type
-    // is a string (char pointer) we need to convert it some how
+    // Since time returns a long int and our buffer data type is a string (char pointer) we need to convert it some how
     // with the help of sprintf we can wrtie number into our buffer
     sprintf(buffer, "%lu:", timer);
     // Write to the text file we opened at first of the file
@@ -48,8 +44,7 @@ long int initializedTime(FILE* filePtr)
     // will be placed at the start of the file
     fseek(filePtr, 0, SEEK_SET);
 
-    char* buffer = malloc(sizeof(char) * 256);
-    if (buffer == NULL) {
+    char* buffer = malloc(sizeof(char) * 256); if (buffer == NULL) {
         perror("Failed to allocate memory\n");
         return 1;
     }
@@ -102,4 +97,36 @@ long int initialize()
 
     fclose(filePtr);
     return time;
+}
+
+double counter()
+{
+    FILE* filePtr = fopen("time.bak", "a+");
+
+    // pointer position for "a+" mode is clearly mentiond so just to
+    // be sure we set the file pointer at the end of the file
+    // to check whether time.bak exists or not
+
+    fseek(filePtr, 0, SEEK_END);
+    if (!ftell(filePtr)) {
+        time_t now = time(NULL);
+        char* buffer = malloc(sizeof(char) * 256);
+
+        // wrtie current time to buffer to write it on time.bak
+        sprintf(buffer, "%ld", now);
+        fwrite(buffer, sizeof(char), 256, filePtr);
+        free(buffer);
+        fclose(filePtr);
+        return 0;
+    }
+    fseek(filePtr, 0, SEEK_SET);
+    char* buffer = malloc(sizeof(char) * 256);
+    fread(buffer, sizeof(char), 255, filePtr);
+    time_t start = strtol(buffer, NULL, 10);
+    fclose(filePtr);
+    free(buffer);
+    time_t now = time(NULL);
+    double diff = difftime(now, start);
+    remove("time.bak");
+    return diff;
 }
