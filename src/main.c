@@ -9,11 +9,13 @@ long int initializedTime(FILE*);
 long int isInitialized(FILE*);
 long int initialize();
 double counter();
+int saveDiff(long int);
 
 
 int
 main()
 {
+
 }
 
 long int firstInitialize(FILE* filePtr)
@@ -101,7 +103,7 @@ long int initialize()
 
 double counter()
 {
-    FILE* filePtr = fopen("time.bak", "a+");
+    FILE* filePtr = fopen(".time.bak", "a+");
 
     // pointer position for "a+" mode is clearly mentiond so just to
     // be sure we set the file pointer at the end of the file
@@ -127,6 +129,30 @@ double counter()
     free(buffer);
     time_t now = time(NULL);
     double diff = difftime(now, start);
-    remove("time.bak");
+    remove(".time.bak");
     return diff;
+}
+
+int saveDiff(long int diff)
+{
+    FILE* filePtr = fopen("time", "a+");
+    long int exists = isInitialized(filePtr);
+    if (exists) {
+        fseek(filePtr, 0, SEEK_SET);
+        char* buffer = malloc(sizeof(char) * 256);
+        fgets(buffer, 255, filePtr);
+        long int past = strtol(buffer, NULL, 10);
+        long int now = past + diff;
+        sprintf(buffer, "%ld", now);
+        fwrite(buffer, sizeof(char), 255, filePtr);
+        free(buffer);
+        fclose(filePtr);
+        return 1;
+    }
+    char* buffer = malloc(sizeof(char) * 256);
+    sprintf(buffer, "%ld", diff);
+    fwrite(buffer, sizeof(char), 255, filePtr);
+    free(buffer);
+    fclose(filePtr);
+    return 1;
 }
