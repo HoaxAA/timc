@@ -8,7 +8,8 @@ int task(char*);
 int
 main()
 {
-
+    char name[] = {"salam"};
+    task(name);
 }
 
 int task(char* name)
@@ -38,6 +39,6 @@ int task(char* name)
         return 0;
     }
     fseek(fp, 0, SEEK_END);
-    fprintf(fp, "%s:", buffer);
+    fprintf(fp, "%s:", name);
     return 1;
 }
