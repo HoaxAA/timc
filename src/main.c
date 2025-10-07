@@ -37,6 +37,10 @@ int task(char* name, double total)
     FILE* fp = fopen(".time", "r+");
     if (fp == NULL) {
         fp = fopen(".time", "a+");
+        if (fp == NULL) {
+            perror("Failed to open .time file\n");
+            return -1;
+        }
         fclose(fp);
     }
     fp = fopen(".time", "r+");
