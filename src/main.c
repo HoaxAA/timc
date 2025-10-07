@@ -9,6 +9,14 @@ double counter(char*);
 int
 main()
 {
+    printf("Welcome\n");
+    printf("What's the task you want to keep track of ?\n");
+    char* buffer = malloc(sizeof(char) * 256);
+    if (buffer == NULL) {
+        perror("Failed to initialize memory\n");
+        return 1;
+    }
+    scanf("%s", buffer);
 }
 
 int task(char* name)
@@ -28,8 +36,7 @@ int task(char* name)
     char* buffer = malloc(sizeof(char) * 256);
     if (buffer == NULL) {
         perror("Failed to allocate memory\n");
-        fclose(fp);
-        return -1;
+        fclose(fp); return -1;
     }
 
     int exists = 0;
@@ -76,11 +83,19 @@ double counter(char* name)
     time_t now = time(NULL);
 
     while (fgets(buffer, 255, fp)) {
-        if (buffer == name) {
-
+        char* token = strtok(buffer, ":");
+        if (!strcmp(token, name)) {
+            token = strtok(NULL, ":");
+            time_t first = strtol(token, NULL, 10);
+            fclose(fp);
+            free(buffer);
+            remove(".time.bak");
+            return difftime(now, first);
         }
     }
     fseek(fp, 0, SEEK_END);
-    fprintf(fp, "%s:%ld:", name, now);
+    fprintf(fp, "%s:%ld", name, now);
+    free(buffer);
+    fclose(fp);
     return 0;
 }
