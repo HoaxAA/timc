@@ -3,7 +3,7 @@
 #include <string.h>
 #include <time.h>
 
-int task(char*);
+int task(char*, double);
 double counter(char*);
 
 int
@@ -17,9 +17,16 @@ main()
         return 1;
     }
     scanf("%s", buffer);
+
+    double total = counter(buffer);
+
+    if (total != 1
+            && total != 0) {
+        task(buffer, total);
+    }
 }
 
-int task(char* name)
+int task(char* name, double total)
 {
     /* task function takes a name as a task and will look for .time file 
        to check whether any infromation about that task exists or not
@@ -27,7 +34,12 @@ int task(char* name)
        Return: If the name of the task user entered was already submmited
        0 will be returned, if it was new, then 1 will be returned and if 
        program fail at some point it'll return -1 */
-    FILE* fp = fopen(".time", "a+");
+    FILE* fp = fopen(".time", "r+");
+    if (fp == NULL) {
+        fp = fopen(".time", "a+");
+        fclose(fp);
+    }
+    fp = fopen(".time", "r+");
     if (fp == NULL) {
         perror("Failed to open .time file\n");
         return -1;
@@ -39,20 +51,21 @@ int task(char* name)
         fclose(fp); return -1;
     }
 
-    int exists = 0;
     while (fgets(buffer, 255, fp)) {
-        if (buffer == name) {
-            exists = 1;
-            break;
+        size_t length = strlen(buffer);
+        char* token = strtok(buffer, ":");
+        if (!strcmp(token, name)) {
+            token = strtok(NULL, ":");
+            total += strtol(token, NULL, 10);
+            fseek(fp, -(length), SEEK_CUR);
+            fprintf(fp, "%s:%f\n", name, total);
+            fclose(fp);
+            free(buffer);
+            return 1;
         }
     }
-    if (exists) {
-        fclose(fp);
-        free(buffer);
-        return 0;
-    }
     fseek(fp, 0, SEEK_END);
-    fprintf(fp, "%s:", name);
+    fprintf(fp, "%s:%f\n", name, total);
     fclose(fp);
     free(buffer);
     return 1;
